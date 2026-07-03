@@ -1,0 +1,65 @@
+name: Serenity API Tests
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-and-notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Run Maven tests
+        run: mvn -B verify
+
+      - name: Upload Serenity reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: serenity-reports
+          path: |
+            target/site/serenity/
+            target/surefire-reports/
+          if-no-files-found: warn
+
+      - name: Send email notification
+        if: always() && env.NOTIFICATION_EMAIL != ''
+        uses: dawidd6/action-send-mail@v3
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+        with:
+          server_address: ${{ env.SMTP_HOST }}
+          server_port: ${{ env.SMTP_PORT }}
+          username: ${{ env.SMTP_USERNAME }}
+          password: ${{ env.SMTP_PASSWORD }}
+          subject: "[${{ github.workflow }}] ${{ github.repository }} - ${{ job.status }}"
+          to: ${{ env.NOTIFICATION_EMAIL }}
+          from: GitHub Actions
+          secure: true
+          body: |
+            Workflow: ${{ github.workflow }}
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Status: ${{ job.status }}
+            Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Test report artifacts are available in the workflow run.
