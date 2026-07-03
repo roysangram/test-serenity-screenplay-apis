@@ -36,31 +36,4 @@ jobs:
             target/surefire-reports/
           if-no-files-found: warn
 
-      - name: Send email notification
-        if: always() && env.NOTIFICATION_EMAIL != ''
-        uses: dawidd6/action-send-mail@v3
-        env:
-          SMTP_HOST: smtp.office365.com
-          SMTP_PORT: 587
-          SMTP_USERNAME: sangram.roy30@outlook.com
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          NOTIFICATION_EMAIL: sangram.roy30@outlook.com
-        with:
-          
-          server_address: ${{ env.SMTP_HOST }}
-          server_port: ${{ env.SMTP_PORT }}
-          username: ${{ env.SMTP_USERNAME }}
-          password: ${{ env.SMTP_PASSWORD }}
-          subject: "[${{ github.workflow }}] ${{ github.repository }} - ${{ job.status }}"
-          to: ${{ env.NOTIFICATION_EMAIL }}
-          from: GitHub Actions
-          secure: false
-          body: |
-            Workflow: ${{ github.workflow }}
-            Repository: ${{ github.repository }}
-            Branch: ${{ github.ref_name }}
-            Commit: ${{ github.sha }}
-            Status: ${{ job.status }}
-            Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
             Test report artifacts are available in the workflow run.
