@@ -34,6 +34,3 @@ jobs:
           path: |
             target/site/serenity/
             target/surefire-reports/
-          if-no-files-found: warn
-
-            Test report artifacts are available in the workflow run.
