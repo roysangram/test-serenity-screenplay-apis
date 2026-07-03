@@ -40,11 +40,11 @@ jobs:
         if: always() && env.NOTIFICATION_EMAIL != ''
         uses: dawidd6/action-send-mail@v3
         env:
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_HOST: smtp.office365.com
+          SMTP_PORT: 587
+          SMTP_USERNAME: sangram.roy30@outlook.com
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+          NOTIFICATION_EMAIL: sangram.roy30@outlook.com
         with:
           
           server_address: ${{ env.SMTP_HOST }}
