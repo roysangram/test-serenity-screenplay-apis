@@ -46,6 +46,7 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
         with:
+          
           server_address: ${{ env.SMTP_HOST }}
           server_port: ${{ env.SMTP_PORT }}
           username: ${{ env.SMTP_USERNAME }}
@@ -53,7 +54,7 @@ jobs:
           subject: "[${{ github.workflow }}] ${{ github.repository }} - ${{ job.status }}"
           to: ${{ env.NOTIFICATION_EMAIL }}
           from: GitHub Actions
-          secure: true
+          secure: false
           body: |
             Workflow: ${{ github.workflow }}
             Repository: ${{ github.repository }}
