@@ -11,6 +11,8 @@ on:
 jobs:
   test-and-notify:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -34,3 +36,8 @@ jobs:
           path: |
             target/site/serenity/
             target/surefire-reports/
+      - name: Deploy Report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/site/serenity
