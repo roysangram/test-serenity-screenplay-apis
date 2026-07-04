@@ -2,6 +2,8 @@ package com.example.api.steps;
 
 import org.junit.Assert;
 
+import com.example.api.questions.ResponseBody;
+import com.example.api.questions.ResponseStatusCode;
 import com.example.api.support.EnvironmentConfig;
 import com.example.api.support.TestLogger;
 import com.example.api.support.TrendReportManager;
@@ -14,8 +16,6 @@ import io.cucumber.java.en.When;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.actors.OnStage;
 import net.serenitybdd.screenplay.actors.OnlineCast;
-import net.serenitybdd.screenplay.rest.questions.LastResponse;
-import net.serenitybdd.screenplay.rest.questions.TheResponse;
 
 public class ApiSteps {
 
@@ -53,15 +53,16 @@ public class ApiSteps {
 
     @Then("the response status code should be {int}")
     public void theResponseStatusCodeShouldBe(int expectedStatus) {
-        int actualStatus = actor.asksFor(TheResponse.statusCode());
-        logger.logResponse(actualStatus, actor.asksFor(LastResponse.received()).getBody().asString());
+        int actualStatus = actor.asksFor(ResponseStatusCode.fromLastResponse());
+        String body = actor.asksFor(ResponseBody.fromLastResponse());
+        logger.logResponse(actualStatus, body);
         Assert.assertEquals(expectedStatus, actualStatus);
         trendReportManager.recordScenario(environmentConfig.getEnvironment(), "API status validation", actualStatus == expectedStatus ? "PASSED" : "FAILED", 0L);
     }
 
     @Then("the response body should contain {string}")
     public void theResponseBodyShouldContain(String expectedText) {
-        String body = actor.asksFor(LastResponse.received()).getBody().asString();
+        String body = actor.asksFor(ResponseBody.fromLastResponse());
         logger.info("Response body contains expected text: " + body.contains(expectedText));
         Assert.assertTrue(body.contains(expectedText));
         trendReportManager.recordScenario(environmentConfig.getEnvironment(), "API body validation", body.contains(expectedText) ? "PASSED" : "FAILED", 0L);
