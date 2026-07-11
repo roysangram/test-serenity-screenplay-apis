@@ -1,0 +1,61 @@
+name: Custom Test Report
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-and-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repo
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 2. Set up Java (for Maven/Gradle + Serenity tests)
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. Run tests (Serenity will generate JSON results)
+      - name: Run tests
+        run: mvn clean verify
+
+      # 4. Generate custom HTML report from Serenity JSON
+      - name: Generate custom report
+        run: |
+          python3 - << 'EOF'
+          import json, os
+
+          path = "target/site/serenity/json-summary.json"
+          if not os.path.exists(path):
+              raise FileNotFoundError("Serenity JSON not found")
+
+          with open(path) as f:
+              data = json.load(f)
+
+          html = "<html><body><h1>Custom Test Report</h1><table border='1'>"
+          html += "<tr><th>Feature</th><th>Scenario</th><th>Status</th></tr>"
+
+          for feature in data.get("features", []):
+              for scenario in feature.get("scenarios", []):
+                  html += f"<tr><td>{feature['name']}</td><td>{scenario['name']}</td><td>{scenario['result']}</td></tr>"
+
+          html += "</table></body></html>"
+
+          os.makedirs("docs", exist_ok=True)
+          with open("docs/index.html", "w") as f:
+              f.write(html)
+          EOF
+
+      # 5. Deploy to GitHub Pages
+      - name: Deploy report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
