@@ -24,7 +24,7 @@ jobs:
 
       # 3. Run tests (Serenity will generate JSON results)
       - name: Run tests
-        run: mvn clean verify
+        run: mvn clean verify serenity:aggregate
 
       # 4. Generate custom HTML report from Serenity JSON
       - name: Generate custom report
